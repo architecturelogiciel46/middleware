@@ -19,11 +19,22 @@ const productsProxy = createProxyMiddleware({
     },
 });
 
+const searchProxy = createProxyMiddleware({
+  target: process.env.SEARCH_SERVICE_URL,
+  changeOrigin: true,
+  pathRewrite: { '^/api/search': '/search' },
+  onError: (err, req, res) => {
+    console.error('Search proxy error:', err);
+    res.status(500).json({ error: 'Search proxy error' });
+  },
+});
+
 app.get('/', (req, res) => { 
     res.send('Welcome to the Gateway API');
 });
 
 app.get('/api/products', productsProxy);
+app.get('/api/search', searchProxy);
 
 app.listen(process.env.PORT || 4000, () => {
     console.log(`Gateway API is running on port ${process.env.PORT || 4000}`);
